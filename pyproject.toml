@@ -1,7 +1,7 @@
 [project]
-name = "py-fmpapi"
+name = "fmpapi"
 version = "0.1.0"
-description = "Add your description here"
+description = "Flexible Client for the 'Financial Modeling Prep' API"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
