@@ -23,11 +23,8 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v3
 
-      - name: Install uv
+      - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v4
-
-      - name: Set up Python
-        run: uv python install
         with:
           python-version: ${{ matrix.python-version }}
 
