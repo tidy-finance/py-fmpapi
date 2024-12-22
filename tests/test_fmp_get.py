@@ -1,4 +1,6 @@
 import pytest
+import httpx
+from pytest_httpx import HTTPXMock
 import polars as pl
 from fmpapi.fmp_get import fmp_get, convert_column_names, convert_column_types, perform_request
 
@@ -21,64 +23,67 @@ def test_validate_symbol():
 
 # Request handling tests --------------------------------------------------
 
-# import httpx
-# from unittest.mock import patch
-# def test_fmp_get_parses_response_without_symbol():
-#     example_body = [
-#         {
-#             "symbol": "ABCX.US",
-#             "name": "AlphaBeta Corporation",
-#             "price": 152.35,
-#             "exchange": "New York Stock Exchange",
-#             "exchangeShortName": "NYSE",
-#             "type": "stock",
-#         },
-#         {
-#             "symbol": "GLOTECH.TO",
-#             "name": "Global Technologies Inc.",
-#             "price": 88.50,
-#             "exchange": "Toronto Stock Exchange",
-#             "exchangeShortName": "TSX",
-#             "type": "stock",
-#         },
-#     ]
+def test_fmp_get_parses_response_without_symbol(httpx_mock: HTTPXMock):
+    example_body = [
+        {
+            "symbol": "ABCX.US",
+            "name": "AlphaBeta Corporation",
+            "price": 152.35,
+            "exchange": "New York Stock Exchange",
+            "exchangeShortName": "NYSE",
+            "type": "stock",
+        },
+        {
+            "symbol": "GLOTECH.TO",
+            "name": "Global Technologies Inc.",
+            "price": 88.50,
+            "exchange": "Toronto Stock Exchange",
+            "exchangeShortName": "TSX",
+            "type": "stock",
+        },
+    ]
 
-#     with patch("fmpapi.fmp_get.perform_request", return_value=example_body):
-#         result = fmp_get(resource="stock/list")
-#         assert isinstance(result, pl.DataFrame)
+    httpx_mock.add_response(json=example_body)
 
-# def test_fmp_get_parses_response_with_symbol():
-#     example_body = [
-#         {
-#             "date": "2024-09-28",
-#             "symbol": "XYZC",
-#             "reportedCurrency": "USD",
-#             "cik": "0001234567",
-#             "fillingDate": "2024-11-01",
-#             "acceptedDate": "2024-11-01 06:01:36",
-#             "calendarYear": "2024",
-#             "period": "FY",
-#             "cashAndCashEquivalents": 67890,
-#         }
-#     ]
+    with httpx.Client() as client:
+        result = fmp_get(resource="stock/list")
+        assert isinstance(result, pl.DataFrame)
+        assert result.shape == (2, len(example_body[0]))
 
-#     with patch("your_module.perform_request", return_value=example_body):
-#         result = fmp_get(resource="balance-sheet-statement", symbol="AAPL")
-#         assert isinstance(result, pl.DataFrame)
+def test_fmp_get_parses_response_with_symbol(httpx_mock: HTTPXMock):
+    example_body = {
+        "date": "2024-09-28",
+        "symbol": "XYZC",
+        "reportedCurrency": "USD",
+        "cik": "0001234567",
+        "fillingDate": "2024-11-01",
+        "acceptedDate": "2024-11-01 06:01:36",
+        "calendarYear": "2024",
+        "period": "FY",
+        "cashAndCashEquivalents": 67890,
+    }
 
-# def test_perform_request_throws_error_on_non_200_response():
-#     with patch("httpx.Client.get") as mock_get:
-#         mock_get.return_value.status_code = 400
-#         mock_get.return_value.json.return_value = {"error": "Invalid request"}
-#         with pytest.raises(httpx.HTTPStatusError):
-#             perform_request(resource="invalid-resource")
+    httpx_mock.add_response(json=example_body)
 
-# def test_perform_request_handles_empty_response():
-#     with patch("httpx.Client.get") as mock_get:
-#         mock_get.return_value.status_code = 200
-#         mock_get.return_value.json.return_value = []
-#         with pytest.raises(ValueError, match="Response body is empty."):
-#             perform_request(resource="invalid-resource")
+    with httpx.Client() as client:
+        result = fmp_get(resource="balance-sheet-statement", symbol="AAPL")
+        assert isinstance(result, pl.DataFrame)
+        assert result.shape == (1, len(example_body))
+
+def test_perform_request_throws_error_on_non_200_response(httpx_mock: HTTPXMock):
+    httpx_mock.add_response(status_code=400, json={"error": "Invalid request"})
+
+    with httpx.Client() as client:
+        with pytest.raises(httpx.HTTPStatusError):
+            perform_request(resource="invalid-resource")
+
+
+def test_perform_request_handles_empty_response(httpx_mock: HTTPXMock):
+    httpx_mock.add_response(json=[])
+
+    with httpx.Client() as client:
+        with pytest.raises(ValueError, match="Response body is empty."):
+            fmp_get(resource="invalid-resource")
 
 # Conversion tests --------------------------------------------------------
 
