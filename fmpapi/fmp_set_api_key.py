@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-def set_fmp_api_key():
+def fmp_set_api_key(): # pragma: no cover
     """
     Set the Financial Modeling Prep API key.
 
@@ -61,22 +61,22 @@ def set_fmp_api_key():
         f"{location_choice} directory. Please restart your session to load the new environment."
     )
 
-def prompt_api_key():
+def prompt_api_key(): # pragma: no cover
     return input("Enter your FMP API key: ")
 
-def prompt_location():
+def prompt_location(): # pragma: no cover
     return input(
         "Where do you want to store the .env file? "
         "Enter 'project' for project directory or 'home' for home directory: "
     )
 
-def prompt_gitignore():
+def prompt_gitignore(): # pragma: no cover
     return input(
         "Do you want to add .env to .gitignore? "
         "It is highly recommended! Enter 'yes' or 'no': "
     )
 
-def prompt_overwrite():
+def prompt_overwrite(): # pragma: no cover
     return input(
         "API key already exists. Do you want to overwrite it? Enter 'yes' or 'no': "
     )

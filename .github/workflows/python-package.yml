@@ -33,3 +33,8 @@ jobs:
 
       - name: Run tests
         run: uv run pytest tests
+
+      - name: Use Codecov to track coverage
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml
