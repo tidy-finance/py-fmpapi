@@ -31,7 +31,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
 
       - name: Set up Python
-        uses: uv python install
+        run: uv python install
         with:
           python-version: ${{ matrix.python-version}}
 
