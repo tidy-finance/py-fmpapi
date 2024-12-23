@@ -1,4 +1,10 @@
 # py-fmpapi
+![PyPI](https://img.shields.io/pypi/v/fmpapi?label=pypi%20package)
+![PyPI Downloads](https://img.shields.io/pypi/dm/fmpapi)
+[![python-package.yml](https://github.com/tidy-finance/py-fmpapi/actions/workflows/python-package.yml/badge.svg)](https://github.com/tidy-finance/py-fmpapi/actions/workflows/python-package.yml)
+[![codecov.yml](https://codecov.io/gh/tidy-finance/py-fmpapi/graph/badge.svg)](https://app.codecov.io/gh/tidy-finance/py-fmpapi)
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Provides a flexible interface to the ['Financial Modeling Prep' API](https://site.financialmodelingprep.com/developer/docs). The package supports all available endpoints and parameters, enabling Python users to interact with a wide range of financial data.
 
