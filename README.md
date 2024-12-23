@@ -1,4 +1,4 @@
-# py-fmpapi
+# fmpapi
 ![PyPI](https://img.shields.io/pypi/v/fmpapi?label=pypi%20package)
 ![PyPI Downloads](https://img.shields.io/pypi/dm/fmpapi)
 [![python-package.yml](https://github.com/tidy-finance/py-fmpapi/actions/workflows/python-package.yml/badge.svg)](https://github.com/tidy-finance/py-fmpapi/actions/workflows/python-package.yml)
@@ -12,7 +12,7 @@ This library is a product of Christoph Scheuch and not sponsored by or affiliate
 
 ## Installation
 
-You can install the release version from PyPi: 
+You can install the release version from PyPI: 
 
 ```python
 pip install fmpapi
