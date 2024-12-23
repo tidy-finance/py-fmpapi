@@ -26,7 +26,7 @@ pip install "git+https://github.com/tidy-finance/py-fmpapi"
 
 ## Setup
 
-Before using the package, you need to set your Financial Modeling Prep API key. You can set it using the `fmp_set_api_key()` function, which saves the key to your `.Renviron` file for future use (either in your project or home folder).
+Before using the package, you need to set your Financial Modeling Prep API key. You can set it using the `fmp_set_api_key()` function, which saves the key to your `.env` file for future use (either in your project or home folder).
 
 ```python
 import from fmpapi fmp_set_api_key
