@@ -35,7 +35,7 @@ jobs:
         run: uv pip install coverage
 
       - name: Run tests and collect coverage
-        run: uv run pytest tests --cov fmpapi
+        run: uv run pytest
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4.6.0
