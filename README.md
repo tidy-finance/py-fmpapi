@@ -6,9 +6,15 @@ This library is a product of Christoph Scheuch and not sponsored by or affiliate
 
 ## Installation
 
+You can install the release version from PyPi: 
+
+```python
+pip install fmpapi
+```
+
 You can install the development version from GitHub:
 
-```r
+```python
 pip install "git+https://github.com/tidy-finance/py-fmpapi"
 ```
 
