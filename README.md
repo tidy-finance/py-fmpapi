@@ -1,4 +1,4 @@
-# fmpapi
+# py-fmpapi
 ![PyPI](https://img.shields.io/pypi/v/fmpapi?label=pypi%20package)
 ![PyPI Downloads](https://img.shields.io/pypi/dm/fmpapi)
 [![python-package.yml](https://github.com/tidy-finance/py-fmpapi/actions/workflows/python-package.yml/badge.svg)](https://github.com/tidy-finance/py-fmpapi/actions/workflows/python-package.yml)
