@@ -2,14 +2,15 @@ import polars as pl
 import httpx
 import os
 import re
+from typing import Optional, Dict, Any, List
 
 def fmp_get(
-    resource, 
-    symbol=None, 
-    params={},
-    api_version="v3", 
-    snake_case=True
-    ):
+    resource: str, 
+    symbol: Optional[str] = None, 
+    params: Dict[str, Any] = {}, 
+    api_version: str = "v3", 
+    snake_case: bool = True
+) -> pl.DataFrame:
     """
     Retrieve Financial Data from the Financial Modeling Prep (FMP) API
 
@@ -66,11 +67,11 @@ def fmp_get(
     return data_processed
 
 def perform_request(
-    resource, 
-    base_url="https://financialmodelingprep.com/api/", 
-    api_version="v3", 
-    **kwargs
-    ):
+    resource: str, 
+    base_url: str = "https://financialmodelingprep.com/api/", 
+    api_version: str = "v3", 
+    **kwargs: Any
+) -> List[Dict[str, Any]]:
     """
     Perform a GET request to the Financial Modeling Prep (FMP) API.
 
@@ -100,7 +101,7 @@ def perform_request(
     data = response.json()
     return data
 
-def validate_symbol(symbol):
+def validate_symbol(symbol: str) -> None:
     """
     Validate the provided stock ticker symbol.
 
@@ -113,7 +114,7 @@ def validate_symbol(symbol):
     if not isinstance(symbol, str) or len(symbol) == 0:
         raise ValueError("Please provide a valid symbol.")
 
-def validate_period(period):
+def validate_period(period: str) -> None:
     """
     Validate the reporting period parameter.
 
@@ -126,7 +127,7 @@ def validate_period(period):
     if period not in ["annual", "quarter"]:
         raise ValueError("Period must be either 'annual' or 'quarter'.")
     
-def validate_limit(limit):
+def validate_limit(limit: int) -> None:
     """
     Validate the limit parameter for API requests.
 
@@ -139,7 +140,7 @@ def validate_limit(limit):
     if not isinstance(limit, int) or limit < 1:
         raise ValueError("Limit must be an integer larger than 0.")
 
-def convert_column_names(df):
+def convert_column_names(df: pl.DataFrame) -> pl.DataFrame:
     """
     Convert column names in a Polars DataFrame to snake_case.
 
@@ -152,7 +153,7 @@ def convert_column_names(df):
     df = df.rename({col: re.sub(r'([a-z])([A-Z])', r'\1_\2', col).lower() for col in df.columns})
     return df
 
-def convert_column_types(df):
+def convert_column_types(df: pl.DataFrame) -> pl.DataFrame:
     """
     Convert column types in a Polars DataFrame.
 
