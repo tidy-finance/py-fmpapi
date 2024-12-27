@@ -74,7 +74,7 @@ fmp_get(resource = "symbol_change", api_version = "v4")
 
 There is an existing Python module that also provide an interface to the FMP API. However, the module lacks flexibility because it provides dedicated functions for specific endpoints, which means that users need to study both the FMP API docs and the package documentation and developers have to create new functions for each new endpoint. 
 
-- [fmp-python](https://pypi.org/project/fmp-python/): last comupdated more than 3 years ago. 
+- [fmp-python](https://pypi.org/project/fmp-python/): last commit more than 3 years ago. 
 
 ## Contributing
 
