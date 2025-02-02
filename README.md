@@ -6,7 +6,7 @@
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Provides a flexible interface to the ['Financial Modeling Prep' API](https://site.financialmodelingprep.com/developer/docs). The package supports all available endpoints and parameters, enabling Python users to interact with a wide range of financial data.
+Provides a flexible Polars-based interface to the ['Financial Modeling Prep' API](https://site.financialmodelingprep.com/developer/docs). The package supports all available endpoints and parameters, enabling Python users to interact with a wide range of financial data.
 
 This library is a product of Christoph Scheuch and not sponsored by or affiliated with FMP in any way. For an R implementation, please consider the [`r-fmpapi`](https://github.com/tidy-finance/r-fmpapi) package.
 
@@ -74,7 +74,7 @@ fmp_get(resource = "symbol_change", api_version = "v4")
 
 There is an existing Python module that also provide an interface to the FMP API. However, the module lacks flexibility because it provides dedicated functions for specific endpoints, which means that users need to study both the FMP API docs and the package documentation and developers have to create new functions for each new endpoint. 
 
-- [fmp-python](https://pypi.org/project/fmp-python/): last comupdated more than 3 years ago. 
+- [fmp-python](https://pypi.org/project/fmp-python/): last commit more than 3 years ago. 
 
 ## Contributing
 
