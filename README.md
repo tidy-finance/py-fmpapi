@@ -8,7 +8,9 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or
 
 Provides a flexible Polars-based interface to the ['Financial Modeling Prep' API](https://site.financialmodelingprep.com/developer/docs). The package supports all available endpoints and parameters, enabling Python users to interact with a wide range of financial data.
 
-This library is a product of Christoph Scheuch and not sponsored by or affiliated with FMP in any way. For an R implementation, please consider the [`r-fmpapi`](https://github.com/tidy-finance/r-fmpapi) package.
+This package is developed by Christoph Scheuch and not sponsored by or affiliated with FMP. However, you can get **15% off** your FMP subscription by using [this affiliate link](https://site.financialmodelingprep.com/pricing-plans?couponCode=tidyfinance). By signing up through this link, you also support the development of this package at no extra cost to you.
+
+For an R implementation, please consider the [`r-fmpapi`](https://github.com/tidy-finance/r-fmpapi) package.
 
 ## Installation
 
