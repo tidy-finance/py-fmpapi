@@ -70,12 +70,12 @@ def fmp_get(
         data_processed = convert_column_names(data_processed)
 
     if to_pandas:
-        if not is_module_available("pandas"):
+        if not is_module_available("pandas"): # pragma: no cover
             raise ImportError(
                 "`pandas` is required for `to_pandas=True`. "
                 "Install it with: `pip install pandas`."
             )
-        if not is_module_available("pyarrow"):
+        if not is_module_available("pyarrow"): # pragma: no cover
             raise ImportError(
                 "`pyarrow` is required for `to_pandas=True`. "
                 "Install it with: `pip install pyarrow`."

@@ -112,7 +112,7 @@ def test_convert_column_types():
     assert df_converted.schema["date"] == pl.Date
     assert df_converted.schema["value"] == pl.Int64
 
-# Pandas conversion test
+# Pandas conversion test ---------------------------------------------------
 
 def test_fmp_get_returns_pandas_data_frame(httpx_mock: HTTPXMock):
     example_body = {
