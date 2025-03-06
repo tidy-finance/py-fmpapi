@@ -3,13 +3,15 @@ import httpx
 import os
 import re
 from typing import Optional, Dict, Any, List
+import importlib.util
 
 def fmp_get(
     resource: str, 
     symbol: Optional[str] = None, 
     params: Dict[str, Any] = {}, 
     api_version: str = "v3", 
-    snake_case: bool = True
+    snake_case: bool = True,
+    to_pandas: bool = False
 ) -> pl.DataFrame:
     """
     Retrieve Financial Data from the Financial Modeling Prep (FMP) API
@@ -24,12 +26,14 @@ def fmp_get(
             `"historical-market-capitalization"`, `"profile"`, and `"stock/list"`.
         symbol (str, optional): A string specifying the stock ticker symbol.
         params (dict, optional): Additional arguments to customize the query.
-        api_version (strA string specifying the version of the FMP API to use. Defaults to `"v3"`.
-        snake_case (bool, optional): A boolean indicating whether column names are converted
+        api_version (str): string specifying the version of the FMP API to use. Defaults to `"v3"`.
+        snake_case (bool): A boolean indicating whether column names are converted
             to snake_case. Defaults to `True`.
+        to_pandas (bool): A boolean indicating whether to return a pandas DataFrame.
+            Requires the `pandas` and `pyarrow` packages. Defaults to `False`.
 
     Returns:
-        pl.DataFrame: A Polars DataFrame containing the processed financial data.
+        Polars DataFrame or Pandas DataFrame if `to_pandas=True`.
 
     Raises:
         ValueError: If the response is empty or invalid parameters are provided.
@@ -43,6 +47,7 @@ def fmp_get(
         >>> fmp_get(resource = "profile", symbol = "AAPL")
         >>> fmp_get(resource = "search", params = {"query": "AAP"})
         >>> fmp_get(resource = "profile", symbol = "AAPL", snake_case = False)
+        >>> fmp_get(resource = "profile", symbol = "AAPL", to_pandas = True)
     """
     if symbol:
         validate_symbol(symbol)
@@ -63,7 +68,20 @@ def fmp_get(
         
     if snake_case:
         data_processed = convert_column_names(data_processed)
-        
+
+    if to_pandas:
+        if not is_module_available("pandas"): # pragma: no cover
+            raise ImportError(
+                "`pandas` is required for `to_pandas=True`. "
+                "Install it with: `pip install pandas`."
+            )
+        if not is_module_available("pyarrow"): # pragma: no cover
+            raise ImportError(
+                "`pyarrow` is required for `to_pandas=True`. "
+                "Install it with: `pip install pyarrow`."
+            )
+        return data_processed.to_pandas()
+         
     return data_processed
 
 def perform_request(
@@ -173,3 +191,7 @@ def convert_column_types(df: pl.DataFrame) -> pl.DataFrame:
                 df = df.with_columns(pl.col(col).str.to_datetime()) 
 
     return df
+
+def is_module_available(module_name):
+    """Check if a module can be imported without importing it."""
+    return importlib.util.find_spec(module_name) is not None
