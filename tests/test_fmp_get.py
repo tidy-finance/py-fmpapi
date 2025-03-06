@@ -3,7 +3,10 @@ import httpx
 from pytest_httpx import HTTPXMock
 import polars as pl
 import pandas as pd
-from fmpapi.fmp_get import fmp_get, convert_column_names, convert_column_types, perform_request
+from fmpapi.fmp_get import (
+    fmp_get, convert_column_names, convert_column_types, perform_request, 
+    is_module_available
+)
 
 # Validation tests --------------------------------------------------------
 
@@ -132,3 +135,11 @@ def test_fmp_get_returns_pandas_data_frame(httpx_mock: HTTPXMock):
     with httpx.Client() as client:
         result = fmp_get(resource="balance-sheet-statement", symbol="AAPL", to_pandas=True)
         assert isinstance(result, pd.DataFrame)
+
+def test_is_module_available_true():
+    result = is_module_available("polars")
+    assert result==True
+
+def test_is_module_available_false():
+    result = is_module_available("xxx")
+    assert result==False
