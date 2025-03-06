@@ -8,7 +8,7 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or
 
 Provides a flexible Polars-based interface to the ['Financial Modeling Prep' API](https://site.financialmodelingprep.com/developer/docs). The package supports all available endpoints and parameters, enabling Python users to interact with a wide range of financial data.
 
-This package is developed by Christoph Scheuch and not sponsored by or affiliated with FMP. However, you can get **15% off** your FMP subscription by using [this affiliate link](https://site.financialmodelingprep.com/pricing-plans?couponCode=tidyfinance). By signing up through this link, you also support the development of this package at no extra cost to you.
+> 💡 This package is developed by Christoph Scheuch and not sponsored by or affiliated with FMP. However, you can get **15% off** your FMP subscription by using [this affiliate link](https://site.financialmodelingprep.com/pricing-plans?couponCode=tidyfinance). By signing up through this link, you also support the development of this package at no extra cost to you.
 
 For an R implementation, please consider the [`r-fmpapi`](https://github.com/tidy-finance/r-fmpapi) package.
 
@@ -16,13 +16,19 @@ For an R implementation, please consider the [`r-fmpapi`](https://github.com/tid
 
 You can install the release version from PyPI: 
 
-```python
+```
 pip install fmpapi
+```
+
+If you want to use the package with `pandas`, then install via:
+
+```
+pip install fmpapi[pandas]
 ```
 
 You can install the development version from GitHub:
 
-```python
+```
 pip install "git+https://github.com/tidy-finance/py-fmpapi"
 ```
 
@@ -31,7 +37,7 @@ pip install "git+https://github.com/tidy-finance/py-fmpapi"
 Before using the package, you need to set your Financial Modeling Prep API key. You can set it using the `fmp_set_api_key()` function, which saves the key to your `.env` file for future use (either in your project or home folder).
 
 ```python
-import from fmpapi fmp_set_api_key
+from fmpapi import fmp_set_api_key
 
 fmp_set_api_key()
 ```
@@ -43,7 +49,7 @@ Since the FMP API has a myriad of endpoints and parameters, the package provides
 You can retrieve a company’s profile by providing its stock symbol to the `profile` endpoint:
 
 ```python
-import from fmpapi fmp_get
+from fmpapi import fmp_get
 
 fmp_get(resource = "profile", symbol = "AAPL")
 ```
@@ -62,7 +68,7 @@ fmp_get(resource = "income-statement", symbol = "AAPL")
 
 You can fetch cash flow statements using the `cash-flow-statement` endpoint.
 
-```r
+```python
 fmp_get(resource = "cash-flow-statement", symbol = "AAPL")
 ```
 
@@ -71,6 +77,13 @@ Most free endpoints live under API version 3, but you can also control the api v
 ```python
 fmp_get(resource = "symbol_change", api_version = "v4")
 ```
+
+If you want to get a `pandas` data frame instead of `polars`, you can use the `to_pandas` option:
+
+```python
+fmp_get(resource = "cash-flow-statement", symbol = "AAPL", to_pandas = True)
+```
+
 
 ## Relation to Existing Libraries
 
