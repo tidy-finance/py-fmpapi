@@ -80,7 +80,7 @@ def fmp_get(
                 "`pyarrow` is required for `to_pandas=True`. "
                 "Install it with: `pip install pyarrow`."
             )
-        data_processed.to_pandas()
+        return data_processed.to_pandas()
          
     return data_processed
 

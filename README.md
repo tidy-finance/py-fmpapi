@@ -78,12 +78,11 @@ Most free endpoints live under API version 3, but you can also control the api v
 fmp_get(resource = "symbol_change", api_version = "v4")
 ```
 
-If you want to get a `pandas` data frame instead of `polars`, you can use the `to_pandas` option:
+If you want to get a `pandas` data frame instead of `polars`, you can use the `to_pandas` option (note that `pandas` and `pyarrow` must be installed):
 
 ```python
 fmp_get(resource = "cash-flow-statement", symbol = "AAPL", to_pandas = True)
 ```
-
 
 ## Relation to Existing Libraries
 

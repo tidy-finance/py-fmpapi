@@ -2,6 +2,7 @@ import pytest
 import httpx
 from pytest_httpx import HTTPXMock
 import polars as pl
+import pandas as pd
 from fmpapi.fmp_get import fmp_get, convert_column_names, convert_column_types, perform_request
 
 # Validation tests --------------------------------------------------------
@@ -110,3 +111,24 @@ def test_convert_column_types():
     assert df_converted.schema["calendarYear"] == pl.Int32
     assert df_converted.schema["date"] == pl.Date
     assert df_converted.schema["value"] == pl.Int64
+
+# Pandas conversion test
+
+def test_fmp_get_returns_pandas_data_frame(httpx_mock: HTTPXMock):
+    example_body = {
+        "date": "2024-09-28",
+        "symbol": "ABC",
+        "reportedCurrency": "USD",
+        "cik": "0001234567",
+        "fillingDate": "2024-11-01",
+        "acceptedDate": "2024-11-01 06:01:36",
+        "calendarYear": "2024",
+        "period": "FY",
+        "cashAndCashEquivalents": 67890,
+    }
+
+    httpx_mock.add_response(json=example_body)
+
+    with httpx.Client() as client:
+        result = fmp_get(resource="balance-sheet-statement", symbol="AAPL", to_pandas=True)
+        assert isinstance(result, pd.DataFrame)
