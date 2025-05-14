@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+- Add support for endpoints with historical prices
+
 ## v0.1.2 (2025-03-06)
 
 - Add affiliate link to README
