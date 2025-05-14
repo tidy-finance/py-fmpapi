@@ -1,28 +1,30 @@
-import polars as pl
-import httpx
+import importlib.util
 import os
 import re
-from typing import Optional, Dict, Any, List
-import importlib.util
+from typing import Any, Dict, List, Optional
+
+import httpx
+import polars as pl
+
 
 def fmp_get(
-    resource: str, 
-    symbol: Optional[str] = None, 
-    params: Dict[str, Any] = {}, 
-    api_version: str = "v3", 
+    resource: str,
+    symbol: Optional[str] = None,
+    params: Dict[str, Any] = {},
+    api_version: str = "v3",
     snake_case: bool = True,
-    to_pandas: bool = False
+    to_pandas: bool = False,
 ) -> pl.DataFrame:
     """
     Retrieve Financial Data from the Financial Modeling Prep (FMP) API
 
-    This function fetches financial data from the FMP API, including 
-    balance sheet statements, income statements, cash flow statements, 
+    This function fetches financial data from the FMP API, including
+    balance sheet statements, income statements, cash flow statements,
     historical market data, stock lists, and company profiles.
 
     Parameters:
         resource (str):  A string indicating the API resource to query. Examples
-            include `"balance-sheet-statement"`, `"income-statement"`, `"cash-flow-statement"`, 
+            include `"balance-sheet-statement"`, `"income-statement"`, `"cash-flow-statement"`,
             `"historical-market-capitalization"`, `"profile"`, and `"stock/list"`.
         symbol (str, optional): A string specifying the stock ticker symbol.
         params (dict, optional): Additional arguments to customize the query.
@@ -48,47 +50,59 @@ def fmp_get(
         >>> fmp_get(resource = "search", params = {"query": "AAP"})
         >>> fmp_get(resource = "profile", symbol = "AAPL", snake_case = False)
         >>> fmp_get(resource = "profile", symbol = "AAPL", to_pandas = True)
+        >>> fmp_get(resource = "historical-price-full", symbol = "AAPL", params = {"from": "2025-01-01", "to": "2025-05-01"})
     """
     if symbol:
         validate_symbol(symbol)
         resource = f"{resource}/{symbol}"
-        
+
     if "limit" in params:
         validate_limit(params["limit"])
     if "period" in params:
         validate_period(params["period"])
-        
+
     data_raw = perform_request(resource=resource, api_version=api_version, **params)
-        
+
     if not data_raw:
-        raise ValueError("Response body is empty. Check your resource and parameter specification.")
-        
-    data_processed = pl.DataFrame(data_raw)
+        raise ValueError(
+            "Response body is empty. Check your resource and parameter specification."
+        )
+
+    if isinstance(data_raw, dict):
+        data_processed = pl.DataFrame(data_raw["historical"]).with_columns(
+            symbol=pl.lit(data_raw["symbol"])
+        )
+        cols = ["symbol"] + [col for col in data_processed.columns if col != "symbol"]
+        data_processed = data_processed.select(cols)
+    else:
+        data_processed = pl.DataFrame(data_raw)
+
     data_processed = convert_column_types(data_processed)
-        
+
     if snake_case:
         data_processed = convert_column_names(data_processed)
 
     if to_pandas:
-        if not is_module_available("pandas"): # pragma: no cover
+        if not is_module_available("pandas"):  # pragma: no cover
             raise ImportError(
                 "`pandas` is required for `to_pandas=True`. "
                 "Install it with: `pip install pandas`."
             )
-        if not is_module_available("pyarrow"): # pragma: no cover
+        if not is_module_available("pyarrow"):  # pragma: no cover
             raise ImportError(
                 "`pyarrow` is required for `to_pandas=True`. "
                 "Install it with: `pip install pyarrow`."
             )
         return data_processed.to_pandas()
-         
+
     return data_processed
 
+
 def perform_request(
-    resource: str, 
-    base_url: str = "https://financialmodelingprep.com/api/", 
-    api_version: str = "v3", 
-    **kwargs: Any
+    resource: str,
+    base_url: str = "https://financialmodelingprep.com/api/",
+    api_version: str = "v3",
+    **kwargs: Any,
 ) -> List[Dict[str, Any]]:
     """
     Perform a GET request to the Financial Modeling Prep (FMP) API.
@@ -111,13 +125,14 @@ def perform_request(
     }
     api_key = os.getenv("FMP_API_KEY")
     params = {"apikey": api_key, **kwargs}
-        
+
     with httpx.Client() as client:
         response = client.get(url, headers=headers, params=params)
         response.raise_for_status()
-        
+
     data = response.json()
     return data
+
 
 def validate_symbol(symbol: str) -> None:
     """
@@ -132,6 +147,7 @@ def validate_symbol(symbol: str) -> None:
     if not isinstance(symbol, str) or len(symbol) == 0:
         raise ValueError("Please provide a valid symbol.")
 
+
 def validate_period(period: str) -> None:
     """
     Validate the reporting period parameter.
@@ -144,7 +160,8 @@ def validate_period(period: str) -> None:
     """
     if period not in ["annual", "quarter"]:
         raise ValueError("Period must be either 'annual' or 'quarter'.")
-    
+
+
 def validate_limit(limit: int) -> None:
     """
     Validate the limit parameter for API requests.
@@ -158,6 +175,7 @@ def validate_limit(limit: int) -> None:
     if not isinstance(limit, int) or limit < 1:
         raise ValueError("Limit must be an integer larger than 0.")
 
+
 def convert_column_names(df: pl.DataFrame) -> pl.DataFrame:
     """
     Convert column names in a Polars DataFrame to snake_case.
@@ -168,8 +186,11 @@ def convert_column_names(df: pl.DataFrame) -> pl.DataFrame:
     Returns:
        pl.DataFrame: A Polars DataFrame with column names converted to snake_case.
     """
-    df = df.rename({col: re.sub(r'([a-z])([A-Z])', r'\1_\2', col).lower() for col in df.columns})
+    df = df.rename(
+        {col: re.sub(r"([a-z])([A-Z])", r"\1_\2", col).lower() for col in df.columns}
+    )
     return df
+
 
 def convert_column_types(df: pl.DataFrame) -> pl.DataFrame:
     """
@@ -182,15 +203,19 @@ def convert_column_types(df: pl.DataFrame) -> pl.DataFrame:
         pl.DataFrame: A DataFrame with converted column types.
     """
     for col in df.columns:
+        dtype = df.schema[col]
         if "Year" in col or "year" in col:
-            df = df.with_columns(pl.col(col).cast(pl.Int32))
+            if dtype != pl.Int32:
+                df = df.with_columns(pl.col(col).cast(pl.Int32))
         if "Date" in col or "date" in col:
-            try:
-                df = df.with_columns(pl.col(col).str.to_date())
-            except Exception:
-                df = df.with_columns(pl.col(col).str.to_datetime()) 
+            if dtype not in [pl.Date, pl.Datetime]:
+                try:
+                    df = df.with_columns(pl.col(col).str.to_date())
+                except Exception:
+                    df = df.with_columns(pl.col(col).str.to_datetime())
 
     return df
+
 
 def is_module_available(module_name):
     """Check if a module can be imported without importing it."""
