@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "fmpapi"
 authors = [{name = "Christoph Scheuch", email = "christoph@tidy-intelligence.com"}]
-version = "0.1.2"
+version = "0.1.2.9000"
 description = "Flexible Client for the 'Financial Modeling Prep' API"
 readme = "README.md"
 license = {file = "LICENSE"}
