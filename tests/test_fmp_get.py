@@ -5,6 +5,8 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 from fmpapi.fmp_get import (
+    build_base_url,
+    build_resource,
     convert_column_names,
     convert_column_types,
     fmp_get,
@@ -171,3 +173,38 @@ def test_is_module_available_true():
 def test_is_module_available_false():
     result = is_module_available("xxx")
     assert result == False
+
+
+def test_build_base_url_appends_api_for_v123():
+    assert build_base_url("https://ex.com/", "v2") == "https://ex.com/api/"
+
+
+def test_build_base_url_preserves_slashes_and_duplicates():
+    # No trailing slash: function does NOT insert one before 'api/'
+    assert build_base_url("https://ex.com", "v1") == "https://ex.comapi/"
+    # Trailing slash remains a single slash
+    assert build_base_url("https://ex.com/", "v1") == "https://ex.com/api/"
+    # If 'api/' already present, it will be duplicated when condition is true
+    assert build_base_url("https://ex.com/api/", "v1") == "https://ex.com/api/api/"
+
+
+def test_build_resource_symbol_none_no_validation_called():
+    # Should return resource unchanged for both stable and non-stable
+    assert build_resource("users", None, "stable") == "users"
+    assert build_resource("users", None, "v3") == "users"
+
+
+def test_build_resource_stable_with_symbol_validates_but_returns_resource():
+    out = build_resource("users", "AAPL", "stable")
+    assert out == "users"
+
+
+def test_build_resource_nonstable_with_symbol_validates_and_appends():
+    out = build_resource("users", "AAPL", "v3")
+    assert out == "users/AAPL"
+
+
+def test_build_resource_trailing_slash_is_not_normalized():
+    # Current behavior: keep existing trailing slash, leading to double slash
+    out = build_resource("users/", "AAPL", "v3")
+    assert out == "users//AAPL"

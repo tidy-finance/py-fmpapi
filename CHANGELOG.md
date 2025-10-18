@@ -1,7 +1,8 @@
 # Changelog
 
-## Development version
+## v1.0.0 (2025-10-18)
 
+- Add support for and default to stable API version
 - Add support for endpoints with historical prices
 
 ## v0.1.2 (2025-03-06)
