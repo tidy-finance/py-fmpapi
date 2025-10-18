@@ -11,7 +11,7 @@ def fmp_get(
     resource: str,
     symbol: Optional[str] = None,
     params: Dict[str, Any] = {},
-    api_version: str = "v3",
+    api_version: str = "stable",
     snake_case: bool = True,
     to_pandas: bool = False,
 ) -> pl.DataFrame:
@@ -28,7 +28,7 @@ def fmp_get(
             `"historical-market-capitalization"`, `"profile"`, and `"stock/list"`.
         symbol (str, optional): A string specifying the stock ticker symbol.
         params (dict, optional): Additional arguments to customize the query.
-        api_version (str): string specifying the version of the FMP API to use. Defaults to `"v3"`.
+        api_version (str): string specifying the version of the FMP API to use. Defaults to `"stable"`.
         snake_case (bool): A boolean indicating whether column names are converted
             to snake_case. Defaults to `True`.
         to_pandas (bool): A boolean indicating whether to return a pandas DataFrame.
@@ -52,16 +52,19 @@ def fmp_get(
         >>> fmp_get(resource = "profile", symbol = "AAPL", to_pandas = True)
         >>> fmp_get(resource = "historical-price-full", symbol = "AAPL", params = {"from": "2025-01-01", "to": "2025-05-01"})
     """
-    if symbol:
-        validate_symbol(symbol)
-        resource = f"{resource}/{symbol}"
+    resource_processed = build_resource(resource, symbol, api_version)
+
+    if api_version == "stable" and symbol is not None:
+        params["symbol"] = symbol
 
     if "limit" in params:
         validate_limit(params["limit"])
     if "period" in params:
         validate_period(params["period"])
 
-    data_raw = perform_request(resource=resource, api_version=api_version, **params)
+    data_raw = perform_request(
+        resource=resource_processed, api_version=api_version, **params
+    )
 
     if not data_raw:
         raise ValueError(
@@ -100,8 +103,8 @@ def fmp_get(
 
 def perform_request(
     resource: str,
-    base_url: str = "https://financialmodelingprep.com/api/",
-    api_version: str = "v3",
+    base_url: str = "https://financialmodelingprep.com/",
+    api_version: str = "stable",
     **kwargs: Any,
 ) -> List[Dict[str, Any]]:
     """
@@ -110,7 +113,7 @@ def perform_request(
     Parameters:
         resource (str): The API resource to query (e.g., "profile", "balance-sheet-statement").
         base_url (str, optional): The base URL for the FMP API. Defaults to "https://financialmodelingprep.com/api/".
-        api_version (str, optional): The version of the API to use. Defaults to "v3".
+        api_version (str, optional): The version of the API to use. Defaults to "stable".
         **kwargs: Additional query parameters to include in the request.
 
     Returns:
@@ -119,6 +122,7 @@ def perform_request(
     Raises:
         httpx.HTTPStatusError: If the HTTP request fails or returns an error status.
     """
+    base_url = build_base_url(base_url, api_version)
     url = f"{base_url}{api_version}/{resource}"
     headers = {
         "User-Agent": "fmpapi Python package (https://github.com/tidy-finance/py-fmpapi)"
@@ -132,6 +136,46 @@ def perform_request(
 
     data = response.json()
     return data
+
+
+def build_resource(resource: str, symbol: str | None, api_version: str) -> str:
+    """
+    Build the resource path.
+
+    Args:
+        resource (str): The resource path.
+        symbol (str | None): Optional symbol to append.
+        api_version (str): API version (e.g., "stable", "beta").
+
+    Returns:
+        str: The processed resource path.
+    """
+    if symbol is not None:
+        validate_symbol(symbol)
+        if api_version == "stable":
+            resource_processed = resource
+        else:
+            resource_processed = resource + "/" + symbol
+    else:
+        resource_processed = resource
+
+    return resource_processed
+
+
+def build_base_url(base_url: str, api_version: str) -> str:
+    """
+    Build base_url.
+
+    Args:
+        base_url (str): The base URL.
+        api_version (str): The API version (e.g., "v1", "v2", "v3", "stable", etc.).
+
+    Returns:
+        str: The processed base URL.
+    """
+    if api_version in ("v1", "v2", "v3"):
+        base_url = base_url + "api/"
+    return base_url
 
 
 def validate_symbol(symbol: str) -> None:
